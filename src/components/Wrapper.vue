@@ -5,6 +5,8 @@
     </div>
 
     <div class="card-body">
+      <!-- Averigue que <slot> se usa para pasar componentes/elementos 
+              en Vue, como lo son los children en React -->
       <slot></slot>
     </div>
   </div>

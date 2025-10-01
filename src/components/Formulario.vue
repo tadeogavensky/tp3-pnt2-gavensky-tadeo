@@ -13,10 +13,10 @@
           v-model="nombre"
         />
         <div
-          v-show="nombreDirty && !validarNombre"
+          v-if="nombreDirty && !validarNombre.ok"
           class="alert alert-warning mt-2"
         >
-          El nombre debe tener entre 5 y 15 caracteres
+          {{ validarNombre.mensaje }}
         </div>
       </div>
       <div class="form-group my-4">
@@ -30,34 +30,34 @@
           v-model="email"
         />
         <div
-          v-show="emailDirty && !validarEmail"
+          v-if="emailDirty && !validarEmail.ok"
           class="alert alert-warning mt-2"
         >
-          El email debe ser válido
+          {{ validarEmail.mensaje }}
         </div>
       </div>
       <div class="form-group my-4">
         <label for="inputEdad">Edad</label>
         <input
           id="inputEdad"
-          type="text"
+          type="number"
           class="form-control"
           placeholder="23"
           @input="(event) => (edadDirty = true)"
           v-model="edad"
         />
         <div
-          v-show="edadDirty && !validarEdad"
+          v-if="edadDirty && !validarEdad.ok"
           class="alert alert-warning mt-2"
         >
-          La edad debe ser entre 18 y 120 años
+          {{ validarEdad.mensaje }}
         </div>
       </div>
     </form>
 
+    <h2>Tus datos</h2>
     <div class="table-responsive">
-      <h2>Tus datos</h2>
-      <table class="table">
+      <table class="table table-hover table-bordered">
         <thead>
           <tr>
             <th scope="col">Nombre</th>
@@ -68,13 +68,13 @@
         <tbody>
           <tr>
             <td>
-              <p v-show="validarNombre">{{ nombre }}</p>
+              <p v-if="validarNombre.ok" class="mb-0">{{ nombre }}</p>
             </td>
             <td>
-              <p v-show="validarEmail">{{ email }}</p>
+              <p v-if="validarEmail.ok" class="mb-0">{{ email }}</p>
             </td>
             <td>
-              <p v-show="validarEdad">{{ edad }}</p>
+              <p v-if="validarEdad.ok" class="mb-0">{{ edad }}</p>
             </td>
           </tr>
         </tbody>
@@ -106,14 +106,49 @@ export default {
   },
   computed: {
     validarNombre() {
-      return this.nombre.length >= 5 && this.nombre.length <= 15;
+      const res = {
+        ok: true,
+        mensaje: "",
+      };
+      if (this.nombre.length == 0) {
+        res.mensaje = "Campo requerido";
+        res.ok = false;
+      } else if (this.nombre.length < 5 || this.nombre.length > 15) {
+        res.mensaje = "El nombre debe tener entre 5 y 15 caracteres";
+        res.ok = false;
+      }
+
+      return res;
     },
     validarEdad() {
-      console.log(Number(this.edad) >= 18 && Number(this.edad) <= 120);
-      return Number(this.edad) >= 18 && Number(this.edad) <= 120;
+      const res = {
+        ok: true,
+        mensaje: "",
+      };
+      if (!this.edad) {
+        res.mensaje = "Campo requerido";
+        res.ok = false;
+      } else if (this.edad < 18 || this.edad > 120) {
+        res.mensaje = "La edad debe ser entre 18 y 120 años";
+        res.ok = false;
+      }
+
+      return res;
     },
     validarEmail() {
-      return this.email.toLowerCase().match(this.regexEmail);
+      const res = {
+        ok: true,
+        mensaje: "",
+      };
+      if (this.email.length == 0) {
+        res.mensaje = "Campo requerido";
+        res.ok = false;
+      } else if (!this.regexEmail.test(this.email)) {
+        res.mensaje = "El email debe ser válido";
+        res.ok = false;
+      }
+
+      return res;
     },
   },
 };
